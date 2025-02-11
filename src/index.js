@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import chalk from 'chalk';
 import ignore from 'ignore';
 import fg from 'fast-glob';
-import { encodingForModel } from 'tiktoken';
+import { encoding_for_model: encodingForModel } from 'tiktoken';
 
 const [,, outputFileNameArg] = process.argv;
 const outputFileName = outputFileNameArg || 'APP.md';
