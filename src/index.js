@@ -1,146 +1,94 @@
-// src/index.js
-import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { createRequire } from 'node:module';
-import ignore from 'ignore';
+import { promises as fs } from 'node:fs';
 import chalk from 'chalk';
+import ignore from 'ignore';
+import fg from 'fast-glob';
+import { encodingForModel } from 'tiktoken';
 
-const require = createRequire(import.meta.url);
+const [,, outputFileNameArg] = process.argv;
+const outputFileName = outputFileNameArg || 'APP.md';
 
-/**
- * Recursively gathers file paths from the given directory.
- *
- * @param {string} dir - The directory to read.
- * @param {ignore.Ignore} ig - The ignore instance (parsed .gitignore patterns).
- * @param {string} rootDir - The root directory where the CLI was called.
- * @return {Promise<string[]>} - List of file paths.
- */
-async function gatherFilePaths(dir, ig, rootDir) {
-  let paths = [];
-  const entries = await readdir(dir, { withFileTypes: true });
-
-  for (const entry of entries) {
-    const entryPath = path.join(dir, entry.name);
-    const relativePath = path.relative(rootDir, entryPath);
-
-    // Skip if .gitignore says to ignore
-    if (ig.ignores(relativePath)) continue;
-
-    if (entry.isDirectory()) {
-      paths = paths.concat(await gatherFilePaths(entryPath, ig, rootDir));
-    } else {
-      paths.push(entryPath);
-    }
-  }
-
-  return paths;
-}
-
-/**
- * Attempts to guess a language alias for markdown code fencing based on file extension.
- *
- * @param {string} filePath - The file path from which to guess the language.
- * @returns {string} - The detected language for code fences.
- */
-function guessLanguage(filePath) {
-  const ext = path.extname(filePath).toLowerCase();
-
-  // Basic mapping for demonstration, can be expanded
-  switch (ext) {
-    case '.js':
-    case '.mjs':
-    case '.cjs':
-      return 'js';
-    case '.ts':
-      return 'ts';
-    case '.json':
-      return 'json';
-    case '.html':
-      return 'html';
-    case '.css':
-      return 'css';
-    case '.md':
-      return 'markdown';
-    case '.sh':
-      return 'bash';
-    case '.yml':
-    case '.yaml':
-      return 'yaml';
-    default:
-      return ''; // No specific language
-  }
-}
-
-/**
- * Calculates an approximate token count by splitting on whitespace.
- *
- * @param {string} text - The text to analyze.
- * @returns {number} - The approximate number of tokens.
- */
-function calculateTokens(text) {
-  // A naive approach: split on whitespace
-  return text.split(/\s+/).filter(Boolean).length;
-}
-
-/**
- * Reads and parses .gitignore if present, returning an ignore instance.
- *
- * @param {string} rootDir - Root directory.
- * @returns {Promise<ignore.Ignore>} - The ignore instance with patterns loaded.
- */
-async function parseGitIgnore(rootDir) {
+try {
+  // Prepare .gitignore parser
   const ig = ignore();
   try {
-    const gitIgnorePath = path.join(rootDir, '.gitignore');
-    const gitIgnoreContent = await readFile(gitIgnorePath, 'utf-8');
-    ig.add(gitIgnoreContent.split('\n').filter(Boolean));
+    const ignorePath = path.join(process.cwd(), '.gitignore');
+    const ignoreContent = await fs.readFile(ignorePath, 'utf-8');
+    ig.add(ignoreContent);
   } catch {
-    // .gitignore doesn't exist or can't be read; proceed without it
+    // No .gitignore or unable to read it; ignoring silently
   }
-  return ig;
-}
 
-/**
- * The main function that drives the REMD process.
- *
- * @param {Object} options
- * @param {string} options.rootDir - The directory to start reading files from.
- * @param {string} options.outputFilename - The name of the output markdown file.
- */
-export async function main({ rootDir, outputFilename }) {
-  const ig = await parseGitIgnore(rootDir);
+  // Gather all files
+  const allPaths = await fg(['**/*'], { dot: true, cwd: process.cwd() });
+  const files = [];
 
-  // Ensure the output file doesn't get included if it's in the directory
-  ig.add(outputFilename);
-
-  console.log(chalk.blue(`Reading files from: ${rootDir}`));
-
-  // Gather all file paths
-  const filePaths = await gatherFilePaths(rootDir, ig, rootDir);
-  console.log(chalk.green(`Found ${filePaths.length} file(s) to process.`));
-
-  // Compile the markdown content
-  let markdownContent = '';
-  for (const filePath of filePaths) {
-    const relPath = path.relative(rootDir, filePath);
-    const codeLang = guessLanguage(filePath);
-    const fileData = await readFile(filePath, 'utf-8');
-
-    markdownContent += `\`\`\`${codeLang}\n`;
-    markdownContent += `// ${relPath}\n`;
-    markdownContent += fileData;
-    if (!fileData.endsWith('\n')) {
-      markdownContent += '\n';
+  // Check each file against .gitignore and for directory status
+  for (const filePath of allPaths) {
+    if (!ig.ignores(filePath)) {
+      const absolutePath = path.join(process.cwd(), filePath);
+      const stats = await fs.stat(absolutePath);
+      if (stats.isFile()) {
+        files.push(filePath);
+      }
     }
-    markdownContent += `\`\`\`\n\n`;
   }
 
-  // Write the compiled content to the output file
-  const outputPath = path.join(rootDir, outputFilename);
-  await writeFile(outputPath, markdownContent, 'utf-8');
+  // Helper to determine code fence language from file extension
+  const extensionToLanguage = {
+    js: 'js',
+    jsx: 'jsx',
+    ts: 'ts',
+    tsx: 'tsx',
+    py: 'python',
+    sh: 'bash',
+    html: 'html',
+    css: 'css',
+    json: 'json',
+    md: 'markdown',
+    yml: 'yaml',
+    yaml: 'yaml',
+    c: 'c',
+    cpp: 'cpp',
+    go: 'go',
+    rs: 'rust'
+  };
 
-  // Calculate approximate tokens
-  const tokenCount = calculateTokens(markdownContent);
-  console.log(chalk.yellow(`\nSuccessfully created "${outputFilename}" with approximately ${tokenCount} tokens.`));
+  function getLanguageFromExtension(file) {
+    const ext = path.extname(file).slice(1).toLowerCase();
+    return extensionToLanguage[ext] || '';
+  }
+
+  // Build output markdown
+  const outputLines = [];
+
+  for (const file of files) {
+    const absolutePath = path.join(process.cwd(), file);
+    const content = await fs.readFile(absolutePath, 'utf-8');
+    const language = getLanguageFromExtension(file);
+
+    outputLines.push(`\`\`\`${language}`);
+    // Comment with the file path (for context)
+    // If you prefer comment syntax for non-js languages, you could adjust dynamically
+    outputLines.push(`// ${file}`);
+    outputLines.push(content);
+    outputLines.push('```');
+    outputLines.push('');
+  }
+
+  const finalMarkdown = outputLines.join('\n');
+
+  // Write the final Markdown file
+  await fs.writeFile(path.join(process.cwd(), outputFileName), finalMarkdown, 'utf-8');
+
+  // Count tokens
+  const enc = encodingForModel('gpt-3.5-turbo'); // or another available model
+  const tokenCount = enc.encode(finalMarkdown).length;
+
+  // Log success
+  console.log(chalk.green(`✔ Successfully compiled into "${outputFileName}" with ${tokenCount} tokens.`));
+} catch (error) {
+  console.error(chalk.red('An error occurred while running remd:'), error);
+  process.exit(1);
 }
 

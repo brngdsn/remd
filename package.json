@@ -11,10 +11,11 @@
   },
   "dependencies": {
     "chalk": "^5.2.0",
-    "ignore": "^5.2.0"
+    "fast-glob": "^3.3.3",
+    "ignore": "^5.2.0",
+    "tiktoken": "^1.0.20"
   },
   "engines": {
     "node": ">=20.8.0"
   }
 }
-
