@@ -10,7 +10,8 @@
     "start": "node ./bin/remd.js"
   },
   "dependencies": {
-    "chalk": "^5.2.0"
+    "chalk": "^5.2.0",
+    "ignore": "^5.2.0"
   },
   "engines": {
     "node": ">=20.8.0"
