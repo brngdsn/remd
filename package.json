@@ -6,9 +6,17 @@
   "bin": {
     "remd": "./bin/remd.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brngdsn/remd.git"
+  },
   "scripts": {
     "start": "node ./bin/remd.js"
   },
+  "bugs": {
+    "url": "https://github.com/brngdsn/remd/issues"
+  },
+  "homepage": "https://github.com/brngdsn/remd#readme",
   "dependencies": {
     "chalk": "^5.2.0",
     "fast-glob": "^3.3.3",
