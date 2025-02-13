@@ -3,7 +3,8 @@ import { promises as fs } from 'node:fs';
 import chalk from 'chalk';
 import ignore from 'ignore';
 import fg from 'fast-glob';
-import { encoding_for_model: encodingForModel } from 'tiktoken';
+import tiktoken from 'tiktoken';
+const { encoding_for_model: encodingForModel } = tiktoken;
 
 const [,, outputFileNameArg] = process.argv;
 const outputFileName = outputFileNameArg || 'APP.md';
@@ -15,6 +16,16 @@ try {
     const ignorePath = path.join(process.cwd(), '.gitignore');
     const ignoreContent = await fs.readFile(ignorePath, 'utf-8');
     ig.add(ignoreContent);
+    ig.add(`*.png`);
+    ig.add(`*.svg`);
+    ig.add(`*.ico`);
+    ig.add(`.git`);
+    ig.add(`*-lock.*`);
+    ig.add(`LICENSE`);
+    ig.add(`*.otf`);
+    ig.add(`*.pdf`);
+    ig.add(`mail_body`);
+    ig.add(`chromedriver`);
   } catch {
     // No .gitignore or unable to read it; ignoring silently
   }
