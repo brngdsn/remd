@@ -1,6 +1,6 @@
 {
   "name": "@brngdsn/remd",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A CLI tool to recursively compile files into a single markdown file.",
   "type": "module",
   "bin": {
