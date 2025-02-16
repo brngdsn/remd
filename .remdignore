@@ -1,0 +1,13 @@
+*.png
+*.svg
+*.ico
+.git/
+*-lock.*
+LICENSE
+*.otf
+*.pdf
+mail_body
+chromedriver
+.next/
+.vercel/
+APP.md
