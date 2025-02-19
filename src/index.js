@@ -116,6 +116,8 @@ program
         return extensionToLanguage[ext] || '';
       }
 
+      // Count tokens (using GPT-3.5-turbo's encoding)
+      const enc = encodingForModel('gpt-3.5-turbo');
       // Build the Markdown output
       const outputLines = [];
 
@@ -123,22 +125,23 @@ program
         const absolutePath = path.join(process.cwd(), file);
         const content = await fs.readFile(absolutePath, 'utf-8');
         const language = getLanguageFromExtension(file);
-
-        outputLines.push(`\`\`\`${language}`);
-        // Add a comment with the file path for context
-        outputLines.push(`// ${file}`);
-        outputLines.push(content);
-        outputLines.push('```');
-        outputLines.push('');
+        try {
+          enc.encode(content);
+          outputLines.push(`\`\`\`${language}`);
+          // Add a comment with the file path for context
+          outputLines.push(`// ${file}`);
+          outputLines.push(content);
+          outputLines.push('```');
+          outputLines.push('');
+        } catch (warn) {
+          console.log(`Warning: Couldn't add \`${file}\`: ${warn}`);
+        }
       }
 
       const finalMarkdown = outputLines.join('\n');
 
       // Write the final Markdown file
       await fs.writeFile(path.join(process.cwd(), outputFileName), finalMarkdown, 'utf-8');
-
-      // Count tokens (using GPT-3.5-turbo's encoding)
-      const enc = encodingForModel('gpt-3.5-turbo');
       const tokenCount = enc.encode(finalMarkdown).length;
 
       // Log success
