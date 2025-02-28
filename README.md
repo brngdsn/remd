@@ -1,8 +1,3 @@
-Sure! Here’s your updated README with some well-placed emojis to enhance readability and make it more engaging:  
-
----
-
-```md
 # 🚀 remd
 
 **remd** is a CLI tool designed for AI web-based development that allows you to quickly compile your entire project into a single Markdown file. This unified file is perfect for providing complete project context when working with AI tools. 🧠📄
@@ -138,6 +133,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ---
 
 🎉 **Happy coding!** 🚀  
-```
-
-This version keeps it professional while adding a touch of visual appeal with emojis. Let me know if you’d like any adjustments! 😃
