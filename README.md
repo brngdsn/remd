@@ -1,4 +1,30 @@
-# 🚀 remd
+<div align="center">
+<h1 align="center">
+<img src="https://raw.githubusercontent.com/PKief/vscode-material-icon-theme/ec559a9f6bfd399b82bb44393651661b08aaf7ba/icons/folder-markdown-open.svg" width="100" />
+<br>remd</h1>
+<h3>◦ A CLI tool to recursively compile files into a single Markdown file.</h3>
+<h3>◦ Developed with modern Node.js frameworks and tools.</h3>
+
+<p align="center">
+<img src="https://img.shields.io/github/license/brngdsn/remd?style=flat-square&color=5D6D7E" alt="GitHub license" />
+<img src="https://img.shields.io/github/last-commit/brngdsn/remd?style=flat-square&color=5D6D7E" alt="git-last-commit" />
+<img src="https://img.shields.io/github/languages/top/brngdsn/remd?style=flat-square&color=5D6D7E" alt="GitHub top language" />
+<img src="https://img.shields.io/github/languages/count/brngdsn/remd?style=flat-square&color=5D6D7E" alt="GitHub repo language count" />
+<img src="https://img.shields.io/github/repo-size/brngdsn/remd?style=flat-square&color=5D6D7E" alt="GitHub repo size" />
+</p>
+<p align="center">
+<img src="https://img.shields.io/badge/Node.js-68A063.svg?style=flat-square&logo=Node.js&logoColor=white" alt="Node.js" />
+<img src="https://img.shields.io/badge/CLI-722E19.svg?style=flat-square" alt="CLI" />
+<img src="https://img.shields.io/badge/Chalk-5F6AB6.svg?style=flat-square&logo=Chalk&logoColor=white" alt="Chalk" />
+<img src="https://img.shields.io/badge/Commander-6C5B7A.svg?style=flat-square&logo=Commander&logoColor=white" alt="Commander" />
+<img src="https://img.shields.io/badge/fast-glob-FFBA00.svg?style=flat-square&logo=fast-glob&logoColor=black" alt="fast-glob" />
+<img src="https://img.shields.io/badge/tiktoken-FF8C00.svg?style=flat-square&logo=tiktoken&logoColor=black" alt="tiktoken" />
+</p>
+</div>
+
+---
+
+## 📖 About the Project
 
 **remd** is a CLI tool designed for AI web-based development that allows you to quickly compile your entire project into a single Markdown file. This unified file is perfect for providing complete project context when working with AI tools. 🧠📄
 
@@ -95,7 +121,7 @@ chromedriver
 
 ---
 
-## 📌 Example Output
+## 📂 Example Output
 
 A snippet of the generated Markdown might look like:
 
